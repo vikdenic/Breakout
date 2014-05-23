@@ -21,6 +21,10 @@
 		93BB8273192E7CD8001947F7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB8255192E7CD8001947F7 /* UIKit.framework */; };
 		93BB827B192E7CD8001947F7 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 93BB8279192E7CD8001947F7 /* InfoPlist.strings */; };
 		93BB827D192E7CD8001947F7 /* BreakoutTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BB827C192E7CD8001947F7 /* BreakoutTests.m */; };
+		93BB8288192E7D9E001947F7 /* PaddleView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BB8287192E7D9E001947F7 /* PaddleView.m */; };
+		93BB828B192E81D5001947F7 /* BallView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BB828A192E81D5001947F7 /* BallView.m */; };
+		93BB82D7192FC905001947F7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB82D6192FC905001947F7 /* QuartzCore.framework */; };
+		93BC6BC8192FCDF500F3FCF9 /* BlockView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC6BC7192FCDF500F3FCF9 /* BlockView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +57,13 @@
 		93BB8278192E7CD8001947F7 /* BreakoutTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "BreakoutTests-Info.plist"; sourceTree = "<group>"; };
 		93BB827A192E7CD8001947F7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		93BB827C192E7CD8001947F7 /* BreakoutTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = BreakoutTests.m; sourceTree = "<group>"; };
+		93BB8286192E7D9E001947F7 /* PaddleView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaddleView.h; sourceTree = "<group>"; };
+		93BB8287192E7D9E001947F7 /* PaddleView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PaddleView.m; sourceTree = "<group>"; };
+		93BB8289192E81D5001947F7 /* BallView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BallView.h; sourceTree = "<group>"; };
+		93BB828A192E81D5001947F7 /* BallView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BallView.m; sourceTree = "<group>"; };
+		93BB82D6192FC905001947F7 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		93BC6BC6192FCDF500F3FCF9 /* BlockView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockView.h; sourceTree = "<group>"; };
+		93BC6BC7192FCDF500F3FCF9 /* BlockView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93BB82D7192FC905001947F7 /* QuartzCore.framework in Frameworks */,
 				93BB8254192E7CD8001947F7 /* CoreGraphics.framework in Frameworks */,
 				93BB8256192E7CD8001947F7 /* UIKit.framework in Frameworks */,
 				93BB8252192E7CD8001947F7 /* Foundation.framework in Frameworks */,
@@ -101,6 +113,7 @@
 		93BB8250192E7CD8001947F7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				93BB82D6192FC905001947F7 /* QuartzCore.framework */,
 				93BB8251192E7CD8001947F7 /* Foundation.framework */,
 				93BB8253192E7CD8001947F7 /* CoreGraphics.framework */,
 				93BB8255192E7CD8001947F7 /* UIKit.framework */,
@@ -112,9 +125,13 @@
 		93BB8257192E7CD8001947F7 /* Breakout */ = {
 			isa = PBXGroup;
 			children = (
-				93BB8260192E7CD8001947F7 /* AppDelegate.h */,
-				93BB8261192E7CD8001947F7 /* AppDelegate.m */,
 				93BB8263192E7CD8001947F7 /* Main.storyboard */,
+				93BC6BC6192FCDF500F3FCF9 /* BlockView.h */,
+				93BC6BC7192FCDF500F3FCF9 /* BlockView.m */,
+				93BB8289192E81D5001947F7 /* BallView.h */,
+				93BB828A192E81D5001947F7 /* BallView.m */,
+				93BB8286192E7D9E001947F7 /* PaddleView.h */,
+				93BB8287192E7D9E001947F7 /* PaddleView.m */,
 				93BB8266192E7CD8001947F7 /* ViewController.h */,
 				93BB8267192E7CD8001947F7 /* ViewController.m */,
 				93BB8269192E7CD8001947F7 /* Images.xcassets */,
@@ -126,6 +143,8 @@
 		93BB8258192E7CD8001947F7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				93BB8260192E7CD8001947F7 /* AppDelegate.h */,
+				93BB8261192E7CD8001947F7 /* AppDelegate.m */,
 				93BB8259192E7CD8001947F7 /* Breakout-Info.plist */,
 				93BB825A192E7CD8001947F7 /* InfoPlist.strings */,
 				93BB825D192E7CD8001947F7 /* main.m */,
@@ -249,7 +268,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				93BC6BC8192FCDF500F3FCF9 /* BlockView.m in Sources */,
+				93BB8288192E7D9E001947F7 /* PaddleView.m in Sources */,
 				93BB8268192E7CD8001947F7 /* ViewController.m in Sources */,
+				93BB828B192E81D5001947F7 /* BallView.m in Sources */,
 				93BB8262192E7CD8001947F7 /* AppDelegate.m in Sources */,
 				93BB825E192E7CD8001947F7 /* main.m in Sources */,
 			);
@@ -456,6 +478,7 @@
 				93BB8282192E7CD8001947F7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		93BB8283192E7CD8001947F7 /* Build configuration list for PBXNativeTarget "BreakoutTests" */ = {
 			isa = XCConfigurationList;
@@ -464,6 +487,7 @@
 				93BB8285192E7CD8001947F7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
