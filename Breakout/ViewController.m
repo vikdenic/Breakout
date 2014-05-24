@@ -17,7 +17,6 @@
 
 @property (weak, nonatomic) IBOutlet PaddleView *paddleView;
 @property (weak, nonatomic) IBOutlet BallView *ballView;
-@property (weak, nonatomic) IBOutlet BlockView *blockView;
 
 @property UIDynamicAnimator *dynamicAnimator;
 
@@ -27,6 +26,10 @@
 @property UIPushBehavior *pushBehavior;
 
 @property UICollisionBehavior *collisionBehavior;
+
+@property UIGravityBehavior *gravityBehavior;
+
+@property UISnapBehavior *snapBehavior;
 
 @end
 
@@ -45,12 +48,13 @@
     // Sets up properties for the pushBehavior and add it to the dynamicAnimator
     self.pushBehavior.pushDirection = CGVectorMake(0.5, 1.0);
     self.pushBehavior.active = YES;
-    self.pushBehavior.magnitude = 0.2;
+    self.pushBehavior.magnitude = 0.15;
     [self.dynamicAnimator addBehavior:self.pushBehavior];
 
     // Dynamic animation configuration for paddle
     self.paddleDynamicBehavior = [[UIDynamicItemBehavior alloc] initWithItems:@[self.paddleView]];
-    self.paddleDynamicBehavior.density = 1000;
+    self.paddleDynamicBehavior.density = INT_MAX;
+    self.paddleDynamicBehavior.elasticity = 1.0;
     self.paddleDynamicBehavior.allowsRotation = NO;
     [self.dynamicAnimator addBehavior:self.paddleDynamicBehavior];
 
@@ -60,10 +64,15 @@
     self.ballDynamicBehavior.elasticity = 1.0;
     self.ballDynamicBehavior.friction = 0.0;
     self.ballDynamicBehavior.resistance = 0.0;
+
     [self.dynamicAnimator addBehavior:self.ballDynamicBehavior];
 
+    self.gravityBehavior =[[UIGravityBehavior alloc] initWithItems:@[self.ballView]];
+    self.gravityBehavior.magnitude = 0.0;
+    [self.dynamicAnimator addBehavior:self.gravityBehavior];
+
     // Allows items to engage in collisions with each other and with the behavior’s specified boundaries
-    self.collisionBehavior = [[UICollisionBehavior alloc] initWithItems:@[self.ballView, self.paddleView, self.blockView]];
+    self.collisionBehavior = [[UICollisionBehavior alloc] initWithItems:@[self.ballView, self.paddleView]];
     self.collisionBehavior.collisionMode = UICollisionBehaviorModeEverything;
     self.collisionBehavior.translatesReferenceBoundsIntoBoundary = YES;
     [self.dynamicAnimator addBehavior:self.collisionBehavior];
@@ -74,17 +83,37 @@
     // Call rounded circle method on ballView
     [self setRoundedView:self.ballView toDiameter:15.0];
 
-    // Add BlockView objects
+    // Creates BlockView objects for Level 1
     [self createBlocksForLevel1];
 
 }
 
+// New blocks for Level 1, with color, placement, and behaviors
 -(void)createBlocksForLevel1
 {
-    BlockView *blockView1 = [[BlockView alloc]initWithFrame:CGRectMake(127, 172, 55, 20)];
-    [self.view addSubview:blockView1];
-    blockView1.backgroundColor = [UIColor greenColor];
-    [self.collisionBehavior addItem:blockView1];
+    BlockView *blockView1 = [[BlockView alloc]initWithFrame:CGRectMake(62, 172, 55, 20)];
+    [self behaviorsForNewBlocks:blockView1 withColor:[UIColor purpleColor]];
+
+    BlockView *blockView2 = [[BlockView alloc]initWithFrame:CGRectMake(134, 138, 55, 20)];
+    [self behaviorsForNewBlocks:blockView2 withColor:[UIColor purpleColor]];
+
+    BlockView *blockView3 = [[BlockView alloc]initWithFrame:CGRectMake(206, 172, 55, 20)];
+    [self behaviorsForNewBlocks:blockView3 withColor:[UIColor purpleColor]];
+
+    BlockView *blockView4 = [[BlockView alloc]initWithFrame:CGRectMake(134, 207, 55, 20)];
+    [self behaviorsForNewBlocks:blockView4 withColor:[UIColor purpleColor]];
+
+    BlockView *blockView5 = [[BlockView alloc]initWithFrame:CGRectMake(134, 172, 55, 20)];
+    [self behaviorsForNewBlocks:blockView5 withColor:[UIColor orangeColor]];
+}
+
+// Necessary view-adding and behaviors for newly created blocks
+-(void)behaviorsForNewBlocks:(BlockView *)newBlockView withColor:(UIColor *)color
+{
+    [self.view addSubview:newBlockView];
+    newBlockView.backgroundColor = color;
+    [self.collisionBehavior addItem:newBlockView];
+    [self.paddleDynamicBehavior addItem:newBlockView];
 }
 
 # pragma mark - Actions
@@ -96,31 +125,46 @@
     [self.dynamicAnimator updateItemUsingCurrentState:self.paddleView];
 }
 
+// Drops ball from center upon tap
+- (IBAction)tapGesture:(UITapGestureRecognizer *)sender;{
+    [self.gravityBehavior addItem:self.ballView];
+    self.gravityBehavior.magnitude = 0.3;
+    self.gravityBehavior.gravityDirection = CGVectorMake(1.0, 1.0);
+    [self.dynamicAnimator removeBehavior:self.snapBehavior];
+}
+
 # pragma mark - Delegates
 
 // Detects collision at bottom of view and resets ball to center
 -(void)collisionBehavior:(UICollisionBehavior *)behavior beganContactForItem:(id<UIDynamicItem>)item withBoundaryIdentifier:(id<NSCopying>)identifier atPoint:(CGPoint)p
 {
-
     if (p.y > 560)
     {
-        //method that returns the ball to the middle of screen
-        self.pushBehavior.pushDirection = CGVectorMake(0.5, 1.0);
-        self.pushBehavior.active = YES;
-        self.pushBehavior.magnitude = 0.2;
-        self.ballView.center = self.view.center;
-        [self.dynamicAnimator updateItemUsingCurrentState:self.ballView];
+        //returns the ball to the middle of screen
+        CGPoint centerOfView = self.view.center;
+        self.snapBehavior = [[UISnapBehavior alloc] initWithItem:self.ballView snapToPoint:centerOfView];
+        [self.dynamicAnimator addBehavior:self.snapBehavior];
     }
-
 }
 
-// Detects collision between two items
+// Detects collision between a ball and block
 -(void)collisionBehavior:(UICollisionBehavior *)behavior endedContactForItem:(id<UIDynamicItem>)item1 withItem:(id<UIDynamicItem>)item2
 {
-    if([item2 isKindOfClass:[BlockView class]])
-    {}
-}
+    // When ball hits block
+    if ([item1 isKindOfClass:[BallView class]] && [item2 isKindOfClass:[BlockView class]])
+    {
+        BlockView *blockCollided = (BlockView *)item2;
+        [blockCollided removeFromSuperview];
+        [self.collisionBehavior removeItem:item2];
+        [self.paddleDynamicBehavior removeItem:item2];
+    }
 
+    // When ball hits paddle
+    if ([item1 isKindOfClass:[BallView class]] && [item2 isKindOfClass:[PaddleView class]])
+    {
+        [self.gravityBehavior removeItem:self.ballView];
+    }
+}
 
 # pragma mark - Quartz Framework
 

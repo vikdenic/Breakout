@@ -27,21 +27,16 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
-                            <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dOS-mV-K3C" customClass="BlockView">
-                                <rect key="frame" x="133" y="150" width="55" height="20"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" red="0.50196081400000003" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <gestureRecognizers/>
                         <connections>
                             <outletCollection property="gestureRecognizers" destination="IGR-hx-MQX" appends="YES" id="oUM-CM-11c"/>
+                            <outletCollection property="gestureRecognizers" destination="sIT-U4-6Tw" appends="YES" id="DRz-5d-Pxj"/>
                         </connections>
                     </view>
                     <connections>
                         <outlet property="ballView" destination="c2l-Od-9Z6" id="4Vi-Qn-4HT"/>
-                        <outlet property="blockView" destination="dOS-mV-K3C" id="6Qa-Fg-nXd"/>
                         <outlet property="paddleView" destination="N6R-qI-MUo" id="XSl-Ps-m5r"/>
                     </connections>
                 </viewController>
@@ -51,6 +46,11 @@
                         <action selector="dragPaddle:" destination="vXZ-lx-hvc" id="Qcy-qX-AaR"/>
                     </connections>
                 </panGestureRecognizer>
+                <tapGestureRecognizer id="sIT-U4-6Tw">
+                    <connections>
+                        <action selector="tapGesture:" destination="vXZ-lx-hvc" id="5sC-db-mCP"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
         </scene>
     </scenes>
