@@ -25,6 +25,7 @@
 		93BB828B192E81D5001947F7 /* BallView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BB828A192E81D5001947F7 /* BallView.m */; };
 		93BB82D7192FC905001947F7 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB82D6192FC905001947F7 /* QuartzCore.framework */; };
 		93BC6BC8192FCDF500F3FCF9 /* BlockView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93BC6BC7192FCDF500F3FCF9 /* BlockView.m */; };
+		93E5BDDF1930365200B925B6 /* BonusImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 93E5BDDE1930365200B925B6 /* BonusImageView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -64,6 +65,8 @@
 		93BB82D6192FC905001947F7 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		93BC6BC6192FCDF500F3FCF9 /* BlockView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BlockView.h; sourceTree = "<group>"; };
 		93BC6BC7192FCDF500F3FCF9 /* BlockView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BlockView.m; sourceTree = "<group>"; };
+		93E5BDDD1930365200B925B6 /* BonusImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BonusImageView.h; sourceTree = "<group>"; };
+		93E5BDDE1930365200B925B6 /* BonusImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BonusImageView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -134,6 +137,8 @@
 				93BB8287192E7D9E001947F7 /* PaddleView.m */,
 				93BB8266192E7CD8001947F7 /* ViewController.h */,
 				93BB8267192E7CD8001947F7 /* ViewController.m */,
+				93E5BDDD1930365200B925B6 /* BonusImageView.h */,
+				93E5BDDE1930365200B925B6 /* BonusImageView.m */,
 				93BB8269192E7CD8001947F7 /* Images.xcassets */,
 				93BB8258192E7CD8001947F7 /* Supporting Files */,
 			);
@@ -273,6 +278,7 @@
 				93BB8268192E7CD8001947F7 /* ViewController.m in Sources */,
 				93BB828B192E81D5001947F7 /* BallView.m in Sources */,
 				93BB8262192E7CD8001947F7 /* AppDelegate.m in Sources */,
+				93E5BDDF1930365200B925B6 /* BonusImageView.m in Sources */,
 				93BB825E192E7CD8001947F7 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

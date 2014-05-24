@@ -1,5 +1,5 @@
 //
-//  BlockView.h
+//  BonusImageView.h
 //  Breakout
 //
 //  Created by Vik Denic on 5/23/14.
@@ -7,10 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "BonusImageView.h"
 
-@interface BlockView : UIView
-
-@property BonusImageView *bonusImageView;
+@interface BonusImageView : UIImageView
 
 @end
