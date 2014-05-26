@@ -20,24 +20,27 @@
 @property (weak, nonatomic) IBOutlet PaddleView *paddleView;
 @property (weak, nonatomic) IBOutlet BallView *ballView;
 
-@property UIDynamicAnimator *dynamicAnimator;
+@property UIDynamicAnimator *dynamicAnimator1;
 
 @property UIDynamicItemBehavior *paddleDynamicBehavior;
 @property UIDynamicItemBehavior *ballDynamicBehavior;
+@property UIDynamicItemBehavior *bonusDynamicBehavior;
 
 @property UIPushBehavior *pushBehavior;
 
-@property UICollisionBehavior *collisionBehavior;
+@property UICollisionBehavior *collisionBehavior1; //for collision between paddle, ball, and blocks
+@property UICollisionBehavior *collisionBehavior2; //for collision between paddle, ball, and bonuses
 
 @property UISnapBehavior *snapBehavior;
 
 @property UIPanGestureRecognizer *gestureRecognized;
 
 @property BOOL userIsPlaying; // Controls tapGesture to drop ball
-@property NSArray *startDirection; // Randomizes each turn
 
 @property BOOL bonusDone; // Status of bonus item
 @property BOOL blocksDone; // Status of blocks
+
+@property CGPoint tappedScreen;
 
 @end
 
@@ -50,51 +53,67 @@
     [super viewDidLoad];
 
     // Provides physics-related capabilities and animations for paddle and ball
-    self.dynamicAnimator = [[UIDynamicAnimator alloc] initWithReferenceView:self.view];
+    self.dynamicAnimator1 = [[UIDynamicAnimator alloc] initWithReferenceView:self.view];
 
     // Dynamic animation configuration for paddle
     self.paddleDynamicBehavior = [[UIDynamicItemBehavior alloc] initWithItems:@[self.paddleView]];
     self.paddleDynamicBehavior.density = 100000.0;
     self.paddleDynamicBehavior.elasticity = 0.0;
     self.paddleDynamicBehavior.allowsRotation = NO;
-    [self.dynamicAnimator addBehavior:self.paddleDynamicBehavior];
+    [self.dynamicAnimator1 addBehavior:self.paddleDynamicBehavior];
 
-    // Round edges for paddleView
-    self.paddleView.clipsToBounds = YES;
-    self.paddleView.layer.cornerRadius = 5.0f;
-
-    // A dynamic item behavior represents a base dynamic animation configuration for one or more dynamic items.
+    // A dynamic item behavior represents a base dynamic animation configuration for one or more dynamic items
     self.ballDynamicBehavior = [[UIDynamicItemBehavior alloc] initWithItems:@[self.ballView]];
-    self.ballDynamicBehavior.allowsRotation = YES; //*
+    self.ballDynamicBehavior.allowsRotation = YES;
     self.ballDynamicBehavior.elasticity = 1.0;
     self.ballDynamicBehavior.friction = 0.0;
     self.ballDynamicBehavior.resistance = 0.0;
     self.ballDynamicBehavior.angularResistance = 0.0;
-    [self.dynamicAnimator addBehavior:self.ballDynamicBehavior];
+    [self.dynamicAnimator1 addBehavior:self.ballDynamicBehavior];
+
+    // Dynamic animation configuration for bonuses (or, BonusImageView references)
+    self.bonusDynamicBehavior = [[UIDynamicItemBehavior alloc] init];
+    self.bonusDynamicBehavior.allowsRotation = YES;
+    self.bonusDynamicBehavior.density = 1.0;
+    self.bonusDynamicBehavior.elasticity = 1.0;
+    self.bonusDynamicBehavior.friction = 0.0;
+    self.bonusDynamicBehavior.resistance = 0.0;
+    self.bonusDynamicBehavior.angularResistance = 0.0;
+    [self.dynamicAnimator1 addBehavior:self.bonusDynamicBehavior];
 
     // Allows items to engage in collisions with each other and with the behavior’s specified boundaries
-    self.collisionBehavior = [[UICollisionBehavior alloc] initWithItems:@[self.ballView, self.paddleView]];
-    self.collisionBehavior.collisionMode = UICollisionBehaviorModeEverything;
-    self.collisionBehavior.translatesReferenceBoundsIntoBoundary = YES;
-    [self.dynamicAnimator addBehavior:self.collisionBehavior];
-
+    // collisionBehavior1 is for the paddle, ball, and blocks
+    self.collisionBehavior1 = [[UICollisionBehavior alloc] initWithItems:@[self.ballView, self.paddleView]];
+    self.collisionBehavior1.collisionMode = UICollisionBehaviorModeEverything;
+    self.collisionBehavior1.translatesReferenceBoundsIntoBoundary = YES;
+    [self.dynamicAnimator1 addBehavior:self.collisionBehavior1];
     // Sets collision delegate to ViewController
-    self.collisionBehavior.collisionDelegate = self;
+    self.collisionBehavior1.collisionDelegate = self;
+
+    // Allows items to engage in collisions with each other and with the behavior’s specified boundaries
+    // collisionBehavior1 is for the paddle, ball, and bonuses
+    self.collisionBehavior2 = [[UICollisionBehavior alloc] initWithItems:@[self.ballView, self.paddleView]];
+    self.collisionBehavior2.collisionMode = UICollisionBehaviorModeEverything;
+    self.collisionBehavior2.translatesReferenceBoundsIntoBoundary = YES;
+    [self.dynamicAnimator1 addBehavior:self.collisionBehavior2];
+    // Sets collision delegate to ViewController
+    self.collisionBehavior2.collisionDelegate = self;
+
 
     // Call rounded circle method on ballView
     [self setRoundedView:self.ballView toDiameter:15.0];
 
-    // Creates BlockView objects for Level 1
-    [self createBlocksForLevel1];
-
-    // Array with float for push direction to start left or right randomly
-    self.startDirection = @[@-0.5,@0.5];
+    // Round edges for paddleView
+    self.paddleView.clipsToBounds = YES;
+    self.paddleView.layer.cornerRadius = 5.0f;
 
     // MP3 set up for bonus blocks
     NSString *soundPath = [[NSBundle mainBundle] pathForResource:@"blop" ofType:@"mp3"];
     NSURL *soundURL = [NSURL fileURLWithPath:soundPath];
     AudioServicesCreateSystemSoundID(CFBridgingRetain(soundURL), &soundEffect);
 
+    // Creates BlockView objects for Level 1
+    [self createBlocksForLevel1];
 }
 
 #pragma mark - Helper Methods
@@ -127,7 +146,7 @@
 {
     [self.view addSubview:newBlockView];
     newBlockView.backgroundColor = color;
-    [self.collisionBehavior addItem:newBlockView];
+    [self.collisionBehavior1 addItem:newBlockView];
     [self.paddleDynamicBehavior addItem:newBlockView];
 }
 
@@ -139,19 +158,23 @@
     bonusView.alpha = 0;
 }
 
-// Applies instantaneous push behaviors to a view
--(void)applyPushBehaviors: (UIView *)viewForBehaviors withMagnitude:(float)magFloat withDirectionX:(float)x withDirectionY:(float)y
+// Removal of blocks in Collision Delegate
+-(void)removeBlockAndRelatedBehaviors: (id)blockRemoved
 {
-    // Applies instantaneous force to dynamic items
-    self.pushBehavior = [[UIPushBehavior alloc]initWithItems:@[viewForBehaviors] mode:UIPushBehaviorModeInstantaneous];
-    // Sets up properties for the pushBehavior and add it to the dynamicAnimator
-    self.pushBehavior.pushDirection = CGVectorMake(x,y);
-    self.pushBehavior.active = YES;
-    self.pushBehavior.magnitude = magFloat;
-    [self.dynamicAnimator addBehavior:self.pushBehavior];
+    [blockRemoved removeFromSuperview];
+    [self.collisionBehavior1 removeItem:blockRemoved];
+    [self.paddleDynamicBehavior removeItem:blockRemoved];
 }
 
-// Applies continuous push behaviors to a view
+// Removal of bonus images in Collision Delegate
+-(void)removeBonusAndRelatedBehaviors: (id)bonusRemoved
+{
+    [bonusRemoved removeFromSuperview];
+    [self.bonusDynamicBehavior removeItem:bonusRemoved];
+    [self.collisionBehavior2 removeItem:bonusRemoved];
+}
+
+// Applies continuous push behaviors to bonus views
 -(void)applyPushBehaviorsContinuous: (UIView *)viewForBehaviors withMagnitude:(float)magFloat withDirectionX:(float)x withDirectionY:(float)y
 {
     // Applies a continuous force to dynamic items
@@ -160,7 +183,27 @@
     self.pushBehavior.pushDirection = CGVectorMake(x,y);
     self.pushBehavior.active = YES;
     self.pushBehavior.magnitude = magFloat;
-    [self.dynamicAnimator addBehavior:self.pushBehavior];
+    [self.dynamicAnimator1 addBehavior:self.pushBehavior];
+}
+
+// Applies instantaneous push behaviors to ball
+-(void)applyPushBehaviors: (UIView *)viewForBehaviors withMagnitude:(float)magFloat withDirectionX:(float)x withDirectionY:(float)y
+{
+    // Applies instantaneous force to dynamic items
+    self.pushBehavior = [[UIPushBehavior alloc]initWithItems:@[viewForBehaviors] mode:UIPushBehaviorModeInstantaneous];
+    // Sets up properties for the pushBehavior and add it to the dynamicAnimator
+    self.pushBehavior.pushDirection = CGVectorMake(x,y);
+    self.pushBehavior.active = YES;
+    self.pushBehavior.magnitude = magFloat;
+    [self.dynamicAnimator1 addBehavior:self.pushBehavior];
+}
+
+// Sets push direction of ball and remove snap behavior on tap
+-(void)atBallLaunch: (float)numberForDirection
+{
+    CGFloat floatForDirection = numberForDirection;
+    [self applyPushBehaviors:self.ballView withMagnitude:0.08 withDirectionX:floatForDirection withDirectionY:-1.0];
+    self.userIsPlaying = YES;
 }
 
 # pragma mark - Actions
@@ -169,21 +212,25 @@
 -(IBAction)dragPaddle:(UIPanGestureRecognizer *)gestureRecognizer
 {
     self.paddleView.center = CGPointMake([gestureRecognizer locationInView:self.view].x, self.paddleView.center.y);
-    [self.dynamicAnimator updateItemUsingCurrentState:self.paddleView];
-    self.pushBehavior.magnitude = 0.05;
+    [self.dynamicAnimator1 updateItemUsingCurrentState:self.paddleView];
 }
 
-// Drops ball from center upon tap
-- (IBAction)tapGesture:(UITapGestureRecognizer *)sender;{
-
+// Launches ball from paddle upon tap
+- (IBAction)tapGesture:(UITapGestureRecognizer *)sender
+{
     if(self.userIsPlaying == NO)
     {
-    [self.dynamicAnimator removeBehavior:self.snapBehavior];
-    int random = arc4random_uniform(2);
-    NSNumber *randomNumber = [self.startDirection objectAtIndex:random];
-    CGFloat randomFloat = [randomNumber floatValue];
-    [self applyPushBehaviors:self.ballView withMagnitude:0.08 withDirectionX:randomFloat withDirectionY:-1.0];
-    self.userIsPlaying = YES;
+        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
+        self.tappedScreen = [sender locationInView:self.view];
+
+        if(self.tappedScreen.x < 160)
+        {
+            [self atBallLaunch:-0.5];
+        }
+        else if (self.tappedScreen.x > 160)
+        {
+            [self atBallLaunch:0.5];
+        }
     }
 }
 
@@ -192,14 +239,16 @@
 // Detects collision at bottom of view and resets ball to center
 -(void)collisionBehavior:(UICollisionBehavior *)behavior beganContactForItem:(id<UIDynamicItem>)item withBoundaryIdentifier:(id<NSCopying>)identifier atPoint:(CGPoint)p
 {
-    if (p.y > 560)
+    if (p.y > 560 && self.userIsPlaying == YES)
     {
-        //returns the ball to paddle lanch area
-        self.snapBehavior = [[UISnapBehavior alloc] initWithItem:self.ballView snapToPoint:CGPointMake(155, 474)];
+        // Returns the ball to paddle lanch area
+        self.snapBehavior = [[UISnapBehavior alloc] initWithItem:self.ballView snapToPoint:CGPointMake(155, 479)];
 
-        //"snaps" ball back
+        // "Snaps" ball back
         self.snapBehavior.damping = 1.0;
-        [self.dynamicAnimator addBehavior:self.snapBehavior];
+        [self.dynamicAnimator1 addBehavior:self.snapBehavior];
+
+        // Enables tap gesture to execute
         self.userIsPlaying = NO;
     }
 }
@@ -217,33 +266,18 @@
         if(blockCollided.bonusImageView)
         {
             blockCollided.bonusImageView.alpha = 1;
-            AudioServicesPlaySystemSound(soundEffect);
             [self applyPushBehaviorsContinuous:blockCollided.bonusImageView withMagnitude:0.3 withDirectionX:0.0 withDirectionY:1.0];
-
-            [self.collisionBehavior addItem:blockCollided.bonusImageView];
+            [self.bonusDynamicBehavior addItem:blockCollided.bonusImageView];
+            [self.collisionBehavior2 addItem:blockCollided.bonusImageView];
+            AudioServicesPlaySystemSound(soundEffect);
         }
     }
-    // When bonus image hits block
-    if ([item1 isKindOfClass:[BonusImageView class]] && [item2 isKindOfClass:[BlockView class]])
-    {
-        BlockView *blockCollided = (BlockView *)item2;
-        [self removeBlockAndRelatedBehaviors:blockCollided];
-    }
-
     // When paddle catches bonus image
     if ([item1 isKindOfClass:[PaddleView class]] && [item2 isKindOfClass:[BonusImageView class]])
     {
         BonusImageView *bonusCollided = (BonusImageView *)item2;
-        [self removeBlockAndRelatedBehaviors:bonusCollided];
+        [self removeBonusAndRelatedBehaviors:bonusCollided];
     }
-}
-
-// Helper for removal of blocks in Collision Delegate
--(void)removeBlockAndRelatedBehaviors: (id)blockRemoved
-{
-    [blockRemoved removeFromSuperview];
-    [self.collisionBehavior removeItem:blockRemoved];
-    [self.paddleDynamicBehavior removeItem:blockRemoved];
 }
 
 # pragma mark - Quartz Framework

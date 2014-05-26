@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9335394B193168F80003540F /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9335394A193168F80003540F /* AudioToolbox.framework */; };
-		9335394D193169C70003540F /* blop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 9335394C193169C70003540F /* blop.mp3 */; };
+		935D6FF81932A1FD00F90F8C /* blop.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 935D6FF71932A1FD00F90F8C /* blop.mp3 */; };
 		93BB8252192E7CD8001947F7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB8251192E7CD8001947F7 /* Foundation.framework */; };
 		93BB8254192E7CD8001947F7 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB8253192E7CD8001947F7 /* CoreGraphics.framework */; };
 		93BB8256192E7CD8001947F7 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93BB8255192E7CD8001947F7 /* UIKit.framework */; };
@@ -42,7 +42,7 @@
 
 /* Begin PBXFileReference section */
 		9335394A193168F80003540F /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
-		9335394C193169C70003540F /* blop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = blop.mp3; path = ../../../blop.mp3; sourceTree = "<group>"; };
+		935D6FF71932A1FD00F90F8C /* blop.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = blop.mp3; sourceTree = SOURCE_ROOT; };
 		93BB824E192E7CD8001947F7 /* Breakout.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Breakout.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		93BB8251192E7CD8001947F7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		93BB8253192E7CD8001947F7 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -154,7 +154,7 @@
 		93BB8258192E7CD8001947F7 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				9335394C193169C70003540F /* blop.mp3 */,
+				935D6FF71932A1FD00F90F8C /* blop.mp3 */,
 				93BB8260192E7CD8001947F7 /* AppDelegate.h */,
 				93BB8261192E7CD8001947F7 /* AppDelegate.m */,
 				93BB8259192E7CD8001947F7 /* Breakout-Info.plist */,
@@ -262,7 +262,7 @@
 				93BB826A192E7CD8001947F7 /* Images.xcassets in Resources */,
 				93BB825C192E7CD8001947F7 /* InfoPlist.strings in Resources */,
 				93BB8265192E7CD8001947F7 /* Main.storyboard in Resources */,
-				9335394D193169C70003540F /* blop.mp3 in Resources */,
+				935D6FF81932A1FD00F90F8C /* blop.mp3 in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
