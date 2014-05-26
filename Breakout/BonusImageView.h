@@ -10,4 +10,6 @@
 
 @interface BonusImageView : UIImageView
 
+@property NSString *bonusName;
+
 @end

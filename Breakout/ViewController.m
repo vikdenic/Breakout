@@ -15,7 +15,7 @@
 #import <QuartzCore/QuartzCore.h> //for rounded view
 #import <AudioToolbox/AudioToolbox.h>
 
-@interface ViewController () <UICollisionBehaviorDelegate>
+@interface ViewController () <UICollisionBehaviorDelegate, UIAlertViewDelegate>
 
 @property (weak, nonatomic) IBOutlet PaddleView *paddleView;
 @property (weak, nonatomic) IBOutlet BallView *ballView;
@@ -37,10 +37,13 @@
 
 @property BOOL userIsPlaying; // Controls tapGesture to drop ball
 
-@property BOOL bonusDone; // Status of bonus item
-@property BOOL blocksDone; // Status of blocks
-
 @property CGPoint tappedScreen;
+
+@property (weak, nonatomic) IBOutlet UILabel *livesLabel;
+@property int livesReamining;
+@property int blocksCount;
+
+@property NSArray *animals;
 
 @end
 
@@ -114,6 +117,9 @@
 
     // Creates BlockView objects for Level 1
     [self createBlocksForLevel1];
+
+    self.livesReamining = 3;
+    self.blocksCount = 5;
 }
 
 #pragma mark - Helper Methods
@@ -136,9 +142,15 @@
     BlockView *blockView5 = [[BlockView alloc]initWithFrame:CGRectMake(134, 172, 55, 20)];
     [self behaviorsForNewBlocks:blockView5 withColor:[UIColor whiteColor]];
 
+    // Instantiates random animal array and generates random bonus for block5
+    self.animals = @[@"monkey", @"hippo", @"sloth"];
+    int random = arc4random_uniform(3);
+    NSString *bonusAnimal = [self.animals objectAtIndex:random];
+
     // BonusImageView for special block
     blockView5.bonusImageView = [[BonusImageView alloc]initWithFrame:CGRectMake(134, 172, 50, 50)];
-    [self traitsForBonuses:blockView5.bonusImageView withImage:@"sloth"];
+    [self traitsForBonuses:blockView5.bonusImageView withImage:bonusAnimal withName:bonusAnimal];
+    NSLog(@"%@",bonusAnimal);
 }
 
 // Necessary view-adding and behaviors for newly created blocks
@@ -151,11 +163,12 @@
 }
 
 // Necessary view adding and image naming for BonusViews
--(void)traitsForBonuses:(BonusImageView *)bonusView withImage:(NSString *)imageName
+-(void)traitsForBonuses:(BonusImageView *)bonusView withImage:(NSString *)imageName withName:(NSString *)name
 {
     [self.view addSubview:bonusView];
     bonusView.image = [UIImage imageNamed:imageName];
     bonusView.alpha = 0;
+    bonusView.bonusName = name;
 }
 
 // Removal of blocks in Collision Delegate
@@ -164,6 +177,12 @@
     [blockRemoved removeFromSuperview];
     [self.collisionBehavior1 removeItem:blockRemoved];
     [self.paddleDynamicBehavior removeItem:blockRemoved];
+
+    self.blocksCount -= 1;
+    if(self.blocksCount == 0)
+    {
+        [self wonAlertView];
+    }
 }
 
 // Removal of bonus images in Collision Delegate
@@ -172,6 +191,34 @@
     [bonusRemoved removeFromSuperview];
     [self.bonusDynamicBehavior removeItem:bonusRemoved];
     [self.collisionBehavior2 removeItem:bonusRemoved];
+
+}
+
+// Alert view for lost game
+-(void)wonAlertView
+{
+    UIAlertView *wonAlertView = [[UIAlertView alloc]initWithTitle:@"LEVEL DEFEATED"
+                                                           message:@"Unlocked Level 2"
+                                                          delegate:self
+                                                 cancelButtonTitle:@"Continue"
+                                                 otherButtonTitles: nil];
+    [wonAlertView show];
+    [self snapBackBall];
+
+}
+
+// Alert view for lost game
+-(void)lostAlertView
+{
+    UIAlertView *lostAlertView = [[UIAlertView alloc]initWithTitle:@"GAME OVER"
+                                                                    message:@"Play Again?"
+                                                                   delegate:self
+                                                          cancelButtonTitle:@"Exit"
+                                                          otherButtonTitles:@"Play Again", nil];
+    [lostAlertView show];
+    [self snapBackBall];
+    [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
+
 }
 
 // Applies continuous push behaviors to bonus views
@@ -196,13 +243,6 @@
     self.pushBehavior.active = YES;
     self.pushBehavior.magnitude = magFloat;
     [self.dynamicAnimator1 addBehavior:self.pushBehavior];
-}
-
-// Sets push direction of ball and remove snap behavior on tap
--(void)atBallLaunch: (float)numberForDirection
-{
-    CGFloat floatForDirection = numberForDirection;
-    [self applyPushBehaviors:self.ballView withMagnitude:0.08 withDirectionX:floatForDirection withDirectionY:-1.0];
     self.userIsPlaying = YES;
 }
 
@@ -225,13 +265,22 @@
 
         if(self.tappedScreen.x < 160)
         {
-            [self atBallLaunch:-0.5];
+            [self applyPushBehaviors:self.ballView withMagnitude:0.08 withDirectionX:-0.5 withDirectionY:-1.0];
         }
         else if (self.tappedScreen.x > 160)
         {
-            [self atBallLaunch:0.5];
-        }
+            [self applyPushBehaviors:self.ballView withMagnitude:0.08 withDirectionX:0.5 withDirectionY:-1.0];        }
     }
+}
+
+-(void)snapBackBall
+{
+    // Returns the ball to paddle lanch area
+    self.snapBehavior = [[UISnapBehavior alloc] initWithItem:self.ballView snapToPoint:CGPointMake(155, 425)];
+
+    // "Snaps" ball back
+    self.snapBehavior.damping = 0.8;
+    [self.dynamicAnimator1 addBehavior:self.snapBehavior];
 }
 
 # pragma mark - Delegates
@@ -239,17 +288,20 @@
 // Detects collision at bottom of view and resets ball to center
 -(void)collisionBehavior:(UICollisionBehavior *)behavior beganContactForItem:(id<UIDynamicItem>)item withBoundaryIdentifier:(id<NSCopying>)identifier atPoint:(CGPoint)p
 {
-    if (p.y > 560 && self.userIsPlaying == YES)
+    if (p.y > 450 && self.userIsPlaying == YES)
     {
-        // Returns the ball to paddle lanch area
-        self.snapBehavior = [[UISnapBehavior alloc] initWithItem:self.ballView snapToPoint:CGPointMake(155, 479)];
-
-        // "Snaps" ball back
-        self.snapBehavior.damping = 1.0;
-        [self.dynamicAnimator1 addBehavior:self.snapBehavior];
+        [self snapBackBall];
 
         // Enables tap gesture to execute
         self.userIsPlaying = NO;
+
+        self.livesReamining -= 1;
+        self.livesLabel.text = [NSString stringWithFormat:@"%d", self.livesReamining];
+
+        if(self.livesReamining == 0)
+        {
+            [self lostAlertView];
+        }
     }
 }
 
@@ -277,6 +329,49 @@
     {
         BonusImageView *bonusCollided = (BonusImageView *)item2;
         [self removeBonusAndRelatedBehaviors:bonusCollided];
+
+        // Modify game depending on bonus animal
+        if([bonusCollided.bonusName isEqual: @"monkey"])
+        {
+        [self setRoundedView:self.ballView toDiameter:30.0];
+        self.ballView.backgroundColor = [UIColor yellowColor];
+        }
+
+        else if([bonusCollided.bonusName isEqual: @"sloth"])
+        {
+            self.pushBehavior.magnitude = 0.01;
+            [self.dynamicAnimator1 addBehavior:self.pushBehavior];
+        }
+
+        else if([bonusCollided.bonusName isEqual: @"hippo"])
+        {
+            self.ballView.backgroundColor = [UIColor colorWithRed:0.905 green:0.0 blue:0.552 alpha:1.0];
+            CGRect newFrame = self.view.frame;
+            newFrame.size.width = 30;
+            newFrame.size.height = 30;
+            self.ballView.frame = newFrame;
+        }
+    }
+}
+
+// Allows alert view "Delete" button to remove task
+- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+
+    if (buttonIndex == 1)
+    {
+        for(BlockView *block in self.view.subviews)
+        {
+            if([block isKindOfClass:[BlockView class]])
+            {
+                [block removeFromSuperview];
+            }
+        }
+        // Reset Level
+        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
+        [self createBlocksForLevel1];
+        self.livesReamining = 3;
+        self.livesLabel.text = [NSString stringWithFormat:@"%d", self.livesReamining];
+        self.blocksCount = 5;
     }
 }
 
