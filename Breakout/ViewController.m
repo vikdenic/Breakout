@@ -44,6 +44,7 @@
 @property int blocksCount;
 
 @property NSMutableArray *blocksArray;
+@property NSMutableArray *bonusArray;
 
 @property NSArray *animals;
 
@@ -218,6 +219,7 @@
     bonusView.image = [UIImage imageNamed:imageName];
     bonusView.alpha = 0;
     bonusView.bonusName = name;
+    [self.bonusArray addObject:bonusView];
 }
 
 // Removal of blocks in Collision Delegate
@@ -246,6 +248,14 @@
 
 }
 
+-(void)deactivateBonusDuringAlert
+{
+    for(BonusImageView *bonus in self.bonusArray)
+    {
+        [self.collisionBehavior2 removeItem:bonus];
+    }
+}
+
 // Alert view for won game
 -(void)wonAlertView
 {
@@ -260,6 +270,7 @@
     [self snapBackBall];
     self.userIsPlaying = NO;
     [self.blocksArray removeAllObjects];
+    [self deactivateBonusDuringAlert];
 }
 
 // Alert view for lost game
@@ -277,10 +288,10 @@
         [self.collisionBehavior1 removeItem:block];
         [self.paddleDynamicBehavior removeItem:block];
         [block removeFromSuperview];
-        [self.blocksArray removeAllObjects];
     }
+    [self.blocksArray removeAllObjects];
     [lostAlertView show];
-    [self snapBackBall];
+    [self deactivateBonusDuringAlert];
 }
 
 // Applies continuous push behaviors to bonus views
@@ -433,6 +444,7 @@
         self.livesReamining = 3;
         self.livesLabel.text = [NSString stringWithFormat:@"%d", self.livesReamining];
         self.blocksCount = 5;
+        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
     }
 
     else if(alertView.tag == 1)
