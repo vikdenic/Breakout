@@ -43,6 +43,8 @@
 @property int livesReamining;
 @property int blocksCount;
 
+@property NSMutableArray *blocksArray;
+
 @property NSArray *animals;
 
 @end
@@ -120,6 +122,7 @@
 
     self.livesReamining = 3;
     self.blocksCount = 5;
+
 }
 
 #pragma mark - Helper Methods
@@ -150,7 +153,52 @@
     // BonusImageView for special block
     blockView5.bonusImageView = [[BonusImageView alloc]initWithFrame:CGRectMake(134, 172, 50, 50)];
     [self traitsForBonuses:blockView5.bonusImageView withImage:bonusAnimal withName:bonusAnimal];
-    NSLog(@"%@",bonusAnimal);
+
+    self.blocksArray = [[NSMutableArray alloc]initWithObjects:blockView1,blockView2,blockView3,blockView4,blockView5,nil];
+
+}
+
+// New blocks for Level 1, with color, placement, and behaviors
+-(void)createBlocksForLevel2
+{
+    BlockView *blockView1 = [[BlockView alloc]initWithFrame:CGRectMake(132, 206, 55, 20)];
+    [self behaviorsForNewBlocks:blockView1 withColor:[UIColor redColor]];
+
+    BlockView *blockView2 = [[BlockView alloc]initWithFrame:CGRectMake(78, 165, 55, 20)];
+    [self behaviorsForNewBlocks:blockView2 withColor:[UIColor redColor]];
+
+    BlockView *blockView3 = [[BlockView alloc]initWithFrame:CGRectMake(24, 127, 55, 20)];
+    [self behaviorsForNewBlocks:blockView3 withColor:[UIColor redColor]];
+
+    BlockView *blockView4 = [[BlockView alloc]initWithFrame:CGRectMake(78, 81, 55, 20)];
+    [self behaviorsForNewBlocks:blockView4 withColor:[UIColor redColor]];
+
+    BlockView *blockView5 = [[BlockView alloc]initWithFrame:CGRectMake(132, 51, 55, 20)];
+    [self behaviorsForNewBlocks:blockView5 withColor:[UIColor redColor]];
+
+    BlockView *blockView6 = [[BlockView alloc]initWithFrame:CGRectMake(187, 81, 55, 20)];
+    [self behaviorsForNewBlocks:blockView6 withColor:[UIColor redColor]];
+
+    BlockView *blockView7 = [[BlockView alloc]initWithFrame:CGRectMake(241, 127, 55, 20)];
+    [self behaviorsForNewBlocks:blockView7 withColor:[UIColor redColor]];
+
+    BlockView *blockView8 = [[BlockView alloc]initWithFrame:CGRectMake(187, 165, 55, 20)];
+    [self behaviorsForNewBlocks:blockView8 withColor:[UIColor redColor]];
+
+    BlockView *blockView9 = [[BlockView alloc]initWithFrame:CGRectMake(132, 127, 55, 20)];
+    [self behaviorsForNewBlocks:blockView9 withColor:[UIColor whiteColor]];
+
+    // Instantiates random animal array and generates random bonus for block5
+    self.animals = @[@"monkey", @"hippo", @"sloth"];
+    int random = arc4random_uniform(3);
+    NSString *bonusAnimal = [self.animals objectAtIndex:random];
+
+    // BonusImageView for special block
+    blockView9.bonusImageView = [[BonusImageView alloc]initWithFrame:CGRectMake(132, 127, 50, 50)];
+    [self traitsForBonuses:blockView9.bonusImageView withImage:bonusAnimal withName:bonusAnimal];
+
+    self.blocksArray = [[NSMutableArray alloc]initWithObjects:blockView1,blockView2,blockView3,blockView4,blockView5,blockView6, blockView7,blockView8,blockView9,nil];
+    
 }
 
 // Necessary view-adding and behaviors for newly created blocks
@@ -160,6 +208,7 @@
     newBlockView.backgroundColor = color;
     [self.collisionBehavior1 addItem:newBlockView];
     [self.paddleDynamicBehavior addItem:newBlockView];
+    [self.blocksArray addObject:newBlockView];
 }
 
 // Necessary view adding and image naming for BonusViews
@@ -172,11 +221,14 @@
 }
 
 // Removal of blocks in Collision Delegate
--(void)removeBlockAndRelatedBehaviors: (id)blockRemoved
+-(void)removeBlockAndRelatedBehaviors: (BlockView *)blockRemoved
 {
-    [blockRemoved removeFromSuperview];
     [self.collisionBehavior1 removeItem:blockRemoved];
     [self.paddleDynamicBehavior removeItem:blockRemoved];
+    [blockRemoved removeFromSuperview];
+
+    [self.blocksArray removeObject:blockRemoved];
+
 
     self.blocksCount -= 1;
     if(self.blocksCount == 0)
@@ -194,17 +246,20 @@
 
 }
 
-// Alert view for lost game
+// Alert view for won game
 -(void)wonAlertView
 {
+
     UIAlertView *wonAlertView = [[UIAlertView alloc]initWithTitle:@"LEVEL DEFEATED"
                                                            message:@"Unlocked Level 2"
                                                           delegate:self
                                                  cancelButtonTitle:@"Continue"
                                                  otherButtonTitles: nil];
+    wonAlertView.tag = 1;
     [wonAlertView show];
     [self snapBackBall];
-
+    self.userIsPlaying = NO;
+    [self.blocksArray removeAllObjects];
 }
 
 // Alert view for lost game
@@ -215,10 +270,17 @@
                                                                    delegate:self
                                                           cancelButtonTitle:@"Exit"
                                                           otherButtonTitles:@"Play Again", nil];
+    lostAlertView.tag = 2;
+
+    for(BlockView *block in self.blocksArray)
+    {
+        [self.collisionBehavior1 removeItem:block];
+        [self.paddleDynamicBehavior removeItem:block];
+        [block removeFromSuperview];
+        [self.blocksArray removeAllObjects];
+    }
     [lostAlertView show];
     [self snapBackBall];
-    [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
-
 }
 
 // Applies continuous push behaviors to bonus views
@@ -260,8 +322,9 @@
 {
     if(self.userIsPlaying == NO)
     {
-        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
         self.tappedScreen = [sender locationInView:self.view];
+        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
+        self.userIsPlaying = YES;
 
         if(self.tappedScreen.x < 160)
         {
@@ -303,6 +366,17 @@
             [self lostAlertView];
         }
     }
+
+    // Remove bonus animal if it gets passed the paddle
+    BonusImageView *bonusView = (BonusImageView *)item;
+
+    if ([bonusView isKindOfClass:[BonusImageView class]])
+    {
+        if(p.y > 460)
+        {
+            [self removeBonusAndRelatedBehaviors:bonusView];
+        }
+    }
 }
 
 // Detects collision between a ball and block
@@ -333,23 +407,18 @@
         // Modify game depending on bonus animal
         if([bonusCollided.bonusName isEqual: @"monkey"])
         {
-        [self setRoundedView:self.ballView toDiameter:30.0];
-        self.ballView.backgroundColor = [UIColor yellowColor];
+            self.ballView.backgroundColor = [UIColor yellowColor];
         }
 
         else if([bonusCollided.bonusName isEqual: @"sloth"])
         {
-            self.pushBehavior.magnitude = 0.01;
-            [self.dynamicAnimator1 addBehavior:self.pushBehavior];
+            self.livesReamining += 1;
+            self.livesLabel.text = [NSString stringWithFormat:@"%d", self.livesReamining];
         }
 
         else if([bonusCollided.bonusName isEqual: @"hippo"])
         {
             self.ballView.backgroundColor = [UIColor colorWithRed:0.905 green:0.0 blue:0.552 alpha:1.0];
-            CGRect newFrame = self.view.frame;
-            newFrame.size.width = 30;
-            newFrame.size.height = 30;
-            self.ballView.frame = newFrame;
         }
     }
 }
@@ -359,19 +428,16 @@
 
     if (buttonIndex == 1)
     {
-        for(BlockView *block in self.view.subviews)
-        {
-            if([block isKindOfClass:[BlockView class]])
-            {
-                [block removeFromSuperview];
-            }
-        }
         // Reset Level
-        [self.dynamicAnimator1 removeBehavior:self.snapBehavior];
         [self createBlocksForLevel1];
         self.livesReamining = 3;
         self.livesLabel.text = [NSString stringWithFormat:@"%d", self.livesReamining];
         self.blocksCount = 5;
+    }
+
+    else if(alertView.tag == 1)
+    {
+        [self createBlocksForLevel2];
     }
 }
 
